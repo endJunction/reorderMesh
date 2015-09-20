@@ -22,8 +22,10 @@
 /// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ///
 
+#include <cassert>
 #include <cstdlib>
 
+#include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridReader.h>
@@ -43,6 +45,22 @@ int main(int argc, char* argv[])
     writer->SetDataModeToAscii();
 
     auto mesh = reader->GetOutput();
+
+    for (vtkIdType c = 0; c < mesh->GetNumberOfCells(); ++c)
+    {
+        auto cell = mesh->GetCell(c);
+        auto const n_edges = cell->GetNumberOfEdges();
+        for (vtkIdType e = 0; e < n_edges; ++e)
+        {
+            auto edge = cell->GetEdge(e);
+            auto const n_points = edge->GetNumberOfPoints();
+            assert(n_points == 2);
+            std::cout << "(" << edge->GetPointId(0) << ","
+                      << edge->GetPointId(1) << ")\t";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
 
     writer->SetInputData(mesh);
     writer->Write();
