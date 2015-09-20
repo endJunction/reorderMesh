@@ -24,7 +24,28 @@
 
 #include <cstdlib>
 
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLUnstructuredGridReader.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+
 int main(int argc, char* argv[])
 {
+    // first command line argument is the input file name.
+    auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    reader->SetFileName(argv[1]);
+    reader->Update();
+
+    // second command line argument is the output file name.
+    auto writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+    writer->SetFileName(argv[2]);
+    writer->SetCompressorTypeToNone();
+    writer->SetDataModeToAscii();
+
+    auto mesh = reader->GetOutput();
+
+    writer->SetInputData(mesh);
+    writer->Write();
+
     return EXIT_SUCCESS;
 }
