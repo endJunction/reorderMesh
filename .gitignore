@@ -26,3 +26,12 @@
 *.exe
 *.out
 *.app
+
+# Vim's swap files
+*.sw[op]
+
+# All of the build dirs
+build*/
+
+# Doxygen documentation
+html/
