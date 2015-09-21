@@ -31,6 +31,31 @@
 #include <vtkXMLUnstructuredGridReader.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
+#include <boost/config.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/cuthill_mckee_ordering.hpp>
+#include <boost/graph/properties.hpp>
+#include <boost/graph/bandwidth.hpp>
+#include <boost/graph/profile.hpp>
+#include <boost/graph/wavefront.hpp>
+
+using namespace boost;
+
+using Graph = adjacency_list<vecS, vecS, undirectedS,
+                             property<vertex_color_t, default_color_type,
+                                      property<vertex_degree_t, int>>>;
+using Vertex = graph_traits<Graph>::vertex_descriptor;
+using size_type = graph_traits<Graph>::vertices_size_type;
+
+void graph_statistics(Graph const& graph)
+{
+    std::cout << "bandwidth: " << bandwidth(graph) << std::endl;
+    std::cout << "profile: " << profile(graph) << std::endl;
+    std::cout << "max_wavefront: " << max_wavefront(graph) << std::endl;
+    std::cout << "aver_wavefront: " << aver_wavefront(graph) << std::endl;
+    std::cout << "rms_wavefront: " << rms_wavefront(graph) << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     // first command line argument is the input file name.
@@ -46,6 +71,7 @@ int main(int argc, char* argv[])
 
     auto mesh = reader->GetOutput();
 
+    Graph graph(mesh->GetNumberOfPoints());
     for (vtkIdType c = 0; c < mesh->GetNumberOfCells(); ++c)
     {
         auto cell = mesh->GetCell(c);
@@ -57,9 +83,14 @@ int main(int argc, char* argv[])
             assert(n_points == 2);
             std::cout << "(" << edge->GetPointId(0) << ","
                       << edge->GetPointId(1) << ")\t";
+            add_edge(edge->GetPointId(0), edge->GetPointId(1), graph);
         }
         std::cout << "\n";
     }
+
+    std::cout << "input mesh graph statistics:\n";
+    graph_statistics(graph);
+
     std::cout << "\n";
 
     writer->SetInputData(mesh);
