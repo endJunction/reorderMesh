@@ -24,6 +24,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iostream>
 
 #include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
