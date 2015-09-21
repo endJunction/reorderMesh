@@ -48,13 +48,21 @@ using Graph = adjacency_list<vecS, vecS, undirectedS,
 using Vertex = graph_traits<Graph>::vertex_descriptor;
 using size_type = graph_traits<Graph>::vertices_size_type;
 
-void graph_statistics(Graph const& graph)
+template <typename... Args>
+void graph_statistics(Args&&... args)
 {
-    std::cout << "bandwidth: " << bandwidth(graph) << std::endl;
-    std::cout << "profile: " << profile(graph) << std::endl;
-    std::cout << "max_wavefront: " << max_wavefront(graph) << std::endl;
-    std::cout << "aver_wavefront: " << aver_wavefront(graph) << std::endl;
-    std::cout << "rms_wavefront: " << rms_wavefront(graph) << std::endl;
+    std::cout << "bandwidth: " << bandwidth(std::forward<Args>(args)...)
+              << std::endl;
+    std::cout << "profile: " << profile(std::forward<Args>(args)...)
+              << std::endl;
+    std::cout << "max_wavefront: " << max_wavefront(std::forward<Args>(args)...)
+              << std::endl;
+    std::cout << "aver_wavefront: "
+              << aver_wavefront(std::forward<Args>(args)...) << std::endl;
+    std::cout << "rms_wavefront: " << rms_wavefront(std::forward<Args>(args)...)
+              << std::endl;
+}
+
 }
 
 int main(int argc, char* argv[])
