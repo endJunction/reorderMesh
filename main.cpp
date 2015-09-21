@@ -25,6 +25,8 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <vector>
+#include <tuple>
 
 #include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
@@ -63,6 +65,24 @@ void graph_statistics(Args&&... args)
               << std::endl;
 }
 
+std::pair<std::vector<size_type>, property_map<Graph, vertex_index_t>::type>
+reverse_cuthill_mckee_ordering(Graph& graph)
+{
+    std::cout << "Compute reverse Cuthill-McKee ordering." << std::endl;
+
+    property_map<Graph, vertex_index_t>::type index_map =
+        get(vertex_index, graph);
+
+    std::vector<Vertex> inv_perm(num_vertices(graph));
+    cuthill_mckee_ordering(graph, inv_perm.rbegin(), get(vertex_color, graph),
+                           make_degree_map(graph));
+
+    // Permutation from old index to new index.
+    std::vector<size_type> perm(num_vertices(graph));
+    for (size_type c = 0; c != inv_perm.size(); ++c)
+        perm[index_map[inv_perm[c]]] = c;
+
+    return std::make_pair(perm, index_map);
 }
 
 int main(int argc, char* argv[])
@@ -100,6 +120,17 @@ int main(int argc, char* argv[])
     std::cout << "input mesh graph statistics:\n";
     graph_statistics(graph);
 
+    std::vector<size_type> perm;
+    property_map<Graph, vertex_index_t>::type index_map;
+
+    std::tie(perm, index_map) = reverse_cuthill_mckee_ordering(graph);
+
+    graph_statistics(graph,
+                     make_iterator_property_map(&perm[0], index_map, perm[0]));
+
+    std::cout << "perm\n";
+    for (auto v : perm)
+        std::cout << v << " ";
     std::cout << "\n";
 
     writer->SetInputData(mesh);
