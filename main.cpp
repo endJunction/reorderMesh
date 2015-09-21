@@ -37,6 +37,7 @@
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/cuthill_mckee_ordering.hpp>
+#include <boost/graph/sloan_ordering.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/bandwidth.hpp>
 #include <boost/graph/profile.hpp>
@@ -44,9 +45,11 @@
 
 using namespace boost;
 
-using Graph = adjacency_list<vecS, vecS, undirectedS,
-                             property<vertex_color_t, default_color_type,
-                                      property<vertex_degree_t, int>>>;
+using Graph =
+    adjacency_list<vecS, vecS, undirectedS,
+                   property<vertex_color_t, default_color_type,
+                            property<vertex_degree_t, int,
+                                     property<vertex_priority_t, double>>>>;
 using Vertex = graph_traits<Graph>::vertex_descriptor;
 using size_type = graph_traits<Graph>::vertices_size_type;
 
@@ -76,6 +79,26 @@ reverse_cuthill_mckee_ordering(Graph& graph)
     std::vector<Vertex> inv_perm(num_vertices(graph));
     cuthill_mckee_ordering(graph, inv_perm.rbegin(), get(vertex_color, graph),
                            make_degree_map(graph));
+
+    // Permutation from old index to new index.
+    std::vector<size_type> perm(num_vertices(graph));
+    for (size_type c = 0; c != inv_perm.size(); ++c)
+        perm[index_map[inv_perm[c]]] = c;
+
+    return std::make_pair(perm, index_map);
+}
+
+std::pair<std::vector<size_type>, property_map<Graph, vertex_index_t>::type>
+sloan_ordering(Graph& graph)
+{
+    std::cout << "Compute Sloan ordering." << std::endl;
+
+    property_map<Graph, vertex_index_t>::type index_map =
+        get(vertex_index, graph);
+
+    std::vector<Vertex> inv_perm(num_vertices(graph));
+    sloan_ordering(graph, inv_perm.begin(), get(vertex_color, graph),
+                   make_degree_map(graph), get(vertex_priority, graph));
 
     // Permutation from old index to new index.
     std::vector<size_type> perm(num_vertices(graph));
