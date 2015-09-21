@@ -123,6 +123,7 @@ int main(int argc, char* argv[])
 
     auto mesh = reader->GetOutput();
 
+    // construct edge graph from the mesh.
     Graph graph(mesh->GetNumberOfPoints());
     for (vtkIdType c = 0; c < mesh->GetNumberOfCells(); ++c)
     {
@@ -143,6 +144,7 @@ int main(int argc, char* argv[])
     std::cout << "input mesh graph statistics:\n";
     graph_statistics(graph);
 
+    // Permutation from old index to new index.
     std::vector<size_type> perm;
     property_map<Graph, vertex_index_t>::type index_map;
 
