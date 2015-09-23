@@ -158,6 +158,34 @@ int main(int argc, char* argv[])
         std::cout << v << " ";
     std::cout << "\n";
 
+    // Create new points data array reordering the mesh's points.
+    std::cout << "Update points." << std::endl;
+    auto new_points = vtkSmartPointer<vtkPoints>::New();
+    new_points->SetNumberOfPoints(mesh->GetNumberOfPoints());
+    for (std::size_t i = 0; i < perm.size(); ++i)
+        new_points->SetPoint(perm[i], mesh->GetPoint(i));
+
+    mesh->SetPoints(new_points);
+
+    // Update all cells.
+    std::cout << "Update cells." << std::endl;
+    auto cells_data = mesh->GetCells()->GetData();
+    vtkIdType pos = 0;
+    auto const max_id = cells_data->GetNumberOfTuples();
+    while (pos < max_id)
+    {
+        auto n_points_in_cell = cells_data->GetTuple1(pos);
+        cells_data->SetTuple1(pos, n_points_in_cell);
+        pos++;
+        for (vtkIdType i = 0; i < n_points_in_cell; ++i)
+        {
+            auto id = cells_data->GetTuple1(pos);
+            auto new_id = perm[id];
+            cells_data->SetTuple1(pos, new_id);
+            pos++;
+        }
+    }
+
     writer->SetInputData(mesh);
     writer->Write();
 
