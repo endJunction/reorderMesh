@@ -110,6 +110,7 @@ sloan_ordering(Graph& graph)
 
 int main(int argc, char* argv[])
 {
+    std::cout << "Reading input mesh." << std::endl;
     // first command line argument is the input file name.
     auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
     reader->SetFileName(argv[1]);
@@ -123,6 +124,7 @@ int main(int argc, char* argv[])
 
     auto mesh = reader->GetOutput();
 
+    std::cout << "Construct edge adjacency graph." << std::endl;
     // construct edge graph from the mesh.
     Graph graph(mesh->GetNumberOfPoints());
     for (vtkIdType c = 0; c < mesh->GetNumberOfCells(); ++c)
@@ -134,14 +136,11 @@ int main(int argc, char* argv[])
             auto edge = cell->GetEdge(e);
             auto const n_points = edge->GetNumberOfPoints();
             assert(n_points == 2);
-            std::cout << "(" << edge->GetPointId(0) << ","
-                      << edge->GetPointId(1) << ")\t";
             add_edge(edge->GetPointId(0), edge->GetPointId(1), graph);
         }
-        std::cout << "\n";
     }
 
-    std::cout << "input mesh graph statistics:\n";
+    std::cout << "Input mesh graph statistics:" << std::endl;
     graph_statistics(graph);
 
     // Permutation from old index to new index.
@@ -150,13 +149,14 @@ int main(int argc, char* argv[])
 
     std::tie(perm, index_map) = reverse_cuthill_mckee_ordering(graph);
 
+    std::cout << "Resulting graph statistics:" << std::endl;
     graph_statistics(graph,
                      make_iterator_property_map(&perm[0], index_map, perm[0]));
 
     std::cout << "perm\n";
     for (auto v : perm)
         std::cout << v << " ";
-    std::cout << "\n";
+    std::cout << std::endl;
 
     // Create new points data array reordering the mesh's points.
     std::cout << "Update points." << std::endl;
@@ -186,6 +186,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    std::cout << "Write mesh." << std::endl;
     writer->SetInputData(mesh);
     writer->Write();
 
