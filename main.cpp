@@ -119,8 +119,8 @@ int main(int argc, char* argv[])
     // second command line argument is the output file name.
     auto writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
     writer->SetFileName(argv[2]);
-    writer->SetCompressorTypeToNone();
-    writer->SetDataModeToAscii();
+    writer->SetCompressorTypeToZLib();
+    writer->SetDataModeToBinary();
 
     auto mesh = reader->GetOutput();
 
