@@ -1,0 +1,53 @@
+{
+   libgobject
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   obj:/usr/lib/libgobject-2.0.so.0.4400.1
+   ...
+}
+
+{
+   libpoppler
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   obj:/usr/lib/libpoppler.so.52.0.0
+   ...
+}
+{
+   gomp
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:gomp_malloc
+   fun:gomp_init_num_threads
+   fun:initialize_env
+   fun:call_init.part.0
+   fun:_dl_init
+   obj:/usr/lib/ld-2.22.so
+   ...
+}
+
+
+{
+   libGL
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   obj:/usr/lib/nvidia/libGL.so.352.41
+   ...
+}
+{
+   static_init_ld
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pool
+   fun:__static_initialization_and_destruction_0
+   fun:_GLOBAL__sub_I_eh_alloc.cc
+   fun:call_init.part.0
+   fun:_dl_init
+   obj:/usr/lib/ld-2.22.so
+   ...
+}
