@@ -167,23 +167,17 @@ int main(int argc, char* argv[])
 
     mesh->SetPoints(new_points);
 
-    // Update all cells.
+    // Update all cells. The connectivity array holds the flat list of point
+    // ids; cell sizes and boundaries (the offsets array) are unchanged by the
+    // reordering, so only the point ids need to be remapped.
     std::cout << "Update cells." << std::endl;
-    auto cells_data = mesh->GetCells()->GetData();
-    vtkIdType pos = 0;
-    auto const max_id = cells_data->GetNumberOfTuples();
-    while (pos < max_id)
+    auto connectivity = mesh->GetCells()->GetConnectivityArray();
+    auto const n_ids = connectivity->GetNumberOfTuples();
+    for (vtkIdType pos = 0; pos < n_ids; ++pos)
     {
-        auto n_points_in_cell = cells_data->GetTuple1(pos);
-        cells_data->SetTuple1(pos, n_points_in_cell);
-        pos++;
-        for (vtkIdType i = 0; i < n_points_in_cell; ++i)
-        {
-            auto id = cells_data->GetTuple1(pos);
-            auto new_id = perm[id];
-            cells_data->SetTuple1(pos, new_id);
-            pos++;
-        }
+        auto id = connectivity->GetTuple1(pos);
+        auto new_id = perm[id];
+        connectivity->SetTuple1(pos, new_id);
     }
 
     std::cout << "Write mesh." << std::endl;
