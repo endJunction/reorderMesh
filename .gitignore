@@ -33,5 +33,8 @@
 # All of the build dirs
 build*/
 
+# Generated compilation database (symlinked from the build dir)
+compile_commands.json
+
 # Doxygen documentation
 html/

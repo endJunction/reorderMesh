@@ -1,15 +1,24 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 4.0)
 
-project(ReorderMesh)
+project(ReorderMesh CXX)
 
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+find_package(VTK REQUIRED COMPONENTS
+    CommonCore
+    CommonDataModel
+    IOXML
+)
 
 find_package(Boost REQUIRED COMPONENTS graph)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 add_executable(reorderMesh main.cpp)
 
-target_link_libraries(reorderMesh ${VTK_LIBRARIES} ${Boost_LIBRARIES})
+target_compile_features(reorderMesh PRIVATE cxx_std_23)
+
+target_link_libraries(reorderMesh PRIVATE ${VTK_LIBRARIES} Boost::graph)
+
+vtk_module_autoinit(
+    TARGETS reorderMesh
+    MODULES ${VTK_LIBRARIES}
+)
